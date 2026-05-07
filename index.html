@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Alberto Dal Corso — Game Programmer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0f;
+    --surface:#111118;
+    --border:#1e1e2e;
+    --accent:#00ff88;
+    --accent2:#7c3aed;
+    --text:#e8e8f0;
+    --muted:#6b6b80;
+    --card:#13131c;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;overflow-x:hidden}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,10,15,0.85);backdrop-filter:blur(12px)}
+  .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent);letter-spacing:-0.02em}
+  .nav-links{display:flex;gap:2rem}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s}
+  .nav-links a:hover{color:var(--accent)}
+
+  /* HERO */
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 3rem 4rem;position:relative;overflow:hidden}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:0.4}
+  .hero-glow{position:absolute;top:20%;left:60%;width:500px;height:500px;background:radial-gradient(circle,rgba(0,255,136,0.07) 0%,transparent 70%);pointer-events:none}
+  .hero-tag{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;position:relative}
+  .hero-tag::before{content:'';width:2rem;height:1px;background:var(--accent)}
+  .hero-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,8vw,7rem);line-height:0.95;letter-spacing:-0.03em;color:#fff;margin-bottom:1.5rem;position:relative}
+  .hero-name span{color:var(--accent)}
+  .hero-desc{max-width:520px;color:var(--muted);line-height:1.8;font-size:0.85rem;margin-bottom:2.5rem;position:relative}
+  .hero-cta{display:flex;gap:1rem;flex-wrap:wrap;position:relative}
+  .btn{padding:0.75rem 1.75rem;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all 0.2s;cursor:pointer;border:none;display:inline-block}
+  .btn-primary{background:var(--accent);color:#000;font-weight:700}
+  .btn-primary:hover{background:#00cc6a;transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .hero-stats{display:flex;gap:3rem;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--border);position:relative;flex-wrap:wrap}
+  .stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:#fff}
+  .stat-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.25rem}
+
+  /* SECTIONS */
+  section{padding:5rem 3rem;max-width:1100px;margin:0 auto}
+  .section-tag{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+  .section-tag::before{content:'';width:1.5rem;height:1px;background:var(--accent)}
+  .section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-0.02em;color:#fff;margin-bottom:3rem}
+
+  /* SKILLS */
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+  .skill-item{background:var(--card);padding:1.5rem;transition:background 0.2s}
+  .skill-item:hover{background:#1a1a25}
+  .skill-cat{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.75rem}
+  .skill-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.5rem}
+  .skill-detail{font-size:0.75rem;color:var(--muted);line-height:1.6}
+
+  /* PROJECTS */
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+  .project-card{background:var(--card);padding:2rem;padding-bottom:4rem;position:relative;transition:background 0.2s;overflow:hidden;cursor:pointer}
+  .project-card:hover{background:#1a1a25}
+  .project-type{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.75rem}
+  .project-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:#fff;margin-bottom:0.75rem;line-height:1.2}
+  .project-desc{font-size:0.78rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
+  .project-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+  .tag{font-size:0.65rem;padding:0.3rem 0.7rem;border:1px solid var(--border);color:var(--muted);letter-spacing:0.05em;border-radius:1px}
+  .project-num{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--border);position:absolute;bottom:1rem;right:1.5rem;line-height:1;pointer-events:none}
+  /* PROJECT MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(6px)}
+  .modal-overlay.open{opacity:1;pointer-events:all}
+  .modal{background:var(--card);border:1px solid var(--border);max-width:680px;width:100%;max-height:90vh;overflow-y:auto;position:relative;padding:2.5rem}
+  .modal-close{position:absolute;top:1.25rem;right:1.25rem;background:none;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;padding:0.4rem 0.75rem;cursor:pointer;transition:all 0.2s}
+  .modal-close:hover{border-color:var(--accent);color:var(--accent)}
+  .modal-type{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.75rem}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:#fff;margin-bottom:1rem;line-height:1.1}
+  .modal-meta{display:flex;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .modal-meta-item{font-size:0.72rem;color:var(--muted)}
+  .modal-meta-item span{color:var(--text)}
+  .modal-desc{font-size:0.82rem;color:var(--muted);line-height:1.9;margin-bottom:1.5rem}
+  .modal-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:#fff;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;margin-top:1.5rem}
+  .modal-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem}
+  .modal-links{display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap}
+  /* IMAGE GALLERY */
+  .img-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;margin-bottom:1.5rem}
+  .img-gallery img{width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:opacity 0.2s}
+  .img-gallery img:hover{opacity:0.8}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:300;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity 0.2s}
+  .lightbox.open{opacity:1;pointer-events:all}
+  .lightbox img{max-width:100%;max-height:90vh;object-fit:contain;border:1px solid var(--border)}
+  .lightbox-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;padding:0.4rem 0.75rem;cursor:pointer}
+  .lightbox-close:hover{border-color:var(--accent);color:var(--accent)}
+  .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--border);color:var(--text);font-size:1.2rem;padding:0.75rem 1rem;cursor:pointer;transition:all 0.2s}
+  .lightbox-nav:hover{border-color:var(--accent);color:var(--accent)}
+  .lightbox-prev{left:1.5rem}
+  .lightbox-next{right:1.5rem}
+
+  /* EXPERIENCE */
+  .exp-list{display:flex;flex-direction:column;gap:0}
+  .exp-item{padding:2rem 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:200px 1fr;gap:2rem}
+  .exp-period{font-size:0.72rem;color:var(--muted);letter-spacing:0.05em;padding-top:0.25rem}
+  .exp-role{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;margin-bottom:0.25rem}
+  .exp-company{font-size:0.8rem;color:var(--accent);margin-bottom:0.75rem}
+  .exp-bullets{list-style:none;display:flex;flex-direction:column;gap:0.4rem}
+  .exp-bullets li{font-size:0.78rem;color:var(--muted);line-height:1.6;padding-left:1.2em;position:relative}
+  .exp-bullets li::before{content:'→';position:absolute;left:0;color:var(--accent)}
+
+  /* EDUCATION */
+  .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+  .edu-card{background:var(--card);padding:1.75rem}
+  .edu-year{font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.5rem}
+  .edu-school{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.3rem}
+  .edu-degree{font-size:0.78rem;color:var(--muted);line-height:1.6}
+  .edu-badge{display:inline-block;margin-top:0.75rem;font-size:0.65rem;padding:0.25rem 0.6rem;border:1px solid var(--accent);color:var(--accent)}
+
+  /* CONTACT */
+  .contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+  .contact-big{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,4rem);line-height:1;color:#fff;margin-bottom:1.5rem}
+  .contact-big span{color:var(--accent)}
+  .contact-sub{font-size:0.82rem;color:var(--muted);line-height:1.8;margin-bottom:2rem}
+  .contact-links{display:flex;flex-direction:column;gap:1rem}
+  .contact-link{display:flex;align-items:center;gap:1rem;text-decoration:none;color:var(--text);font-size:0.82rem;padding:1rem;border:1px solid var(--border);transition:all 0.2s}
+  .contact-link:hover{border-color:var(--accent);color:var(--accent)}
+  .contact-link-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);display:block;margin-bottom:0.15rem}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center}
+  footer p{font-size:0.72rem;color:var(--muted)}
+
+  .divider{width:100%;height:1px;background:var(--border);margin:0}
+
+  @media(max-width:700px){
+    nav .nav-links{display:none}
+    .hero{padding:7rem 1.5rem 3rem}
+    section{padding:4rem 1.5rem}
+    .exp-item{grid-template-columns:1fr}
+    .contact-inner{grid-template-columns:1fr}
+    footer{flex-direction:column;gap:1rem;text-align:center}
+    .hero-stats{gap:2rem}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">ADC</div>
+  <div class="nav-links">
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-tag">Available for opportunities</div>
+  <h1 class="hero-name">Alberto<br/>Dal<span> Corso</span></h1>
+  <p class="hero-desc">Computer Games Programmer with 3+ years of industry experience. Specialized in Unreal Engine, C++, and AI systems. BSc Computer Games Development — University of Westminster.</p>
+  <div class="hero-cta">
+    <a href="mailto:dalcorsoalberto@gmail.com" class="btn btn-primary">Get In Touch</a>
+    <a href="#projects" class="btn btn-ghost">View Projects</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div>
+      <div class="stat-num">8</div>
+      <div class="stat-label">Projects Shipped</div>
+    </div>
+    <div>
+      <div class="stat-num">4</div>
+      <div class="stat-label">Game Jams</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-tag">Work</div>
+  <h2 class="section-title">Projects</h2>
+  <div class="projects-grid">
+    <div class="project-card" onclick="openModal(1)">
+      <div class="project-type">Game Group Project I · Steam Release 🎮</div>
+      <h3 class="project-title">Octonaut</h3>
+      <p class="project-desc">2D scrolling shooter built with MonoGame/C#. Released on Steam as Takotan. 7 unique enemy types, wave system, boss fight.</p>
+      <div class="project-tags">
+        <span class="tag">MonoGame</span><span class="tag">C#</span><span class="tag">Steam</span><span class="tag">Lead Programmer</span>
+      </div>
+      <span class="project-num">01</span>
+    </div>   
+    <div class="project-card" onclick="openModal(3)">
+      <div class="project-type">Game Group Project III · VR</div>
+      <h3 class="project-title">Blood Rush</h3>
+      <p class="project-desc">VR wave shooter in Unreal Engine 4. Your ammo is your blood. Drain enemies with a dagger, block projectiles with a shield. 3 unique AI enemy types.</p>
+      <div class="project-tags">
+        <span class="tag">Unreal Engine 4</span><span class="tag">C++</span><span class="tag">VR</span><span class="tag">AI</span>
+      </div>
+      <span class="project-num">03</span>
+    </div>
+    <div class="project-card" onclick="openModal(4)">
+      <div class="project-type">Tranzfuser 2020 — Sponsored 🏆</div>
+      <h3 class="project-title">Leap</h3>
+      <p class="project-desc">Adventure-Platformer sponsored by Tranzfuser. Place platforms with a special weapon to build your own path. Leaderboard system ensures replayability.</p>
+      <div class="project-tags">
+        <span class="tag">Unreal Engine 4</span><span class="tag">C++</span><span class="tag">Tranzfuser</span><span class="tag">Lead Programmer</span>
+      </div>
+      <span class="project-num">04</span>
+    </div>
+    <div class="project-card" onclick="openModal(5)">
+      <div class="project-type">Global Game Jam 2020</div>
+      <h3 class="project-title">Antibot</h3>
+      <p class="project-desc">Made in Global Game Jam 2020 around the theme "Repair". Players repair blood cells in the human body before they damage the system — a frantic co-op survival experience.</p>
+      <div class="project-tags">
+        <span class="tag">Game Jam</span><span class="tag">Co-op</span><span class="tag">Theme: Repair</span>
+      </div>
+      <span class="project-num">05</span>
+    </div>
+    <div class="project-card" onclick="openModal(6)">
+      <div class="project-type">Ukie Green Game Jam 2019</div>
+      <h3 class="project-title">Forest Guardian</h3>
+      <p class="project-desc">Theme: Climate Change. Players protect the forest by disposing garbage using the spirit of the forest, avoiding capture in a stealth-focused environmental game.</p>
+      <div class="project-tags">
+        <span class="tag">Game Jam</span><span class="tag">Stealth</span><span class="tag">Environment</span>
+      </div>
+      <span class="project-num">06</span>
+    </div>
+    <div class="project-card" onclick="openModal(7)">
+      <div class="project-type">Westminster Game Jam 2019 — Most Appreciated</div>
+      <h3 class="project-title">Urilux</h3>
+      <p class="project-desc">Most appreciated game of the Westminster Game Jam. Theme: "Cooperation and collusion". A co-op game where you must help your enemy to complete the level together.</p>
+      <div class="project-tags">
+        <span class="tag">Game Jam</span><span class="tag">Co-op</span><span class="tag">NeoStar</span>
+      </div>
+      <span class="project-num">07</span>
+    </div>
+    <div class="project-card" onclick="openModal(8)">
+      <div class="project-type">Ukie Game Jam 2018</div>
+      <h3 class="project-title">Top Down</h3>
+      <p class="project-desc">Theme: Change. A hyper-casual looking game full of effects and frustrations where the core mechanic is changing the gravity of the world to progress through levels.</p>
+      <div class="project-tags">
+        <span class="tag">Game Jam</span><span class="tag">Physics</span><span class="tag">Gravity Mechanic</span>
+      </div>
+      <span class="project-num">08</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-tag">Career</div>
+  <h2 class="section-title">Experience</h2>
+  <div class="exp-list">
+    <div class="exp-item">
+      <div class="exp-period">03/2021 — Present<br/><span style="color:var(--muted);font-size:0.7rem">Australia (Remote)</span></div>
+      <div>
+        <div class="exp-role">UI &amp; Gameplay Developer</div>
+        <div class="exp-company">Goplay Universal</div>
+        <ul class="exp-bullets">
+          <li>UI screens and gameplay features for PC and Mobile games (PvE and PvP)</li>
+          <li>Server-Client connection implementation</li>
+          <li>Development across both PC and mobile platforms</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-period">06/2020 — 02/2021<br/><span style="color:var(--muted);font-size:0.7rem">London</span></div>
+      <div>
+        <div class="exp-role">Unreal Engine Programmer</div>
+        <div class="exp-company">Fat Pigeon Games</div>
+        <ul class="exp-bullets">
+          <li>Team management using Figma, Prefab, Miro, Confluence and Jira</li>
+          <li>Source control via TortoiseSVN and OpenVPN</li>
+          <li>Development of PC and mobile games</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-period">06/2024 — Present<br/><span style="color:var(--muted);font-size:0.7rem">Italy (Remote)</span></div>
+      <div>
+        <div class="exp-role">Coding Teacher</div>
+        <div class="exp-company">Coding Giants Italia</div>
+        <ul class="exp-bullets">
+          <li>Teaching children how to create video games during camps using Scratch, Minecraft Education, Tynker and MCreator</li>
+          <li>Strengthened communication skills and patience by explaining complex concepts clearly and accessibly</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-tag">Technical</div>
+  <h2 class="section-title">Skills</h2>
+  <div class="skills-grid">
+    <div class="skill-item">
+      <div class="skill-cat">Game Engines</div>
+      <div class="skill-name">Unreal Engine 4</div>
+      <div class="skill-detail">Primary engine — 3+ years professional experience</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Game Engines</div>
+      <div class="skill-name">Unity</div>
+      <div class="skill-detail">Game and prototype development</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Game Engines</div>
+      <div class="skill-name">MonoGame / OpenGL</div>
+      <div class="skill-detail">Low-level graphics and engine fundamentals</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Languages</div>
+      <div class="skill-name">C++ / C#</div>
+      <div class="skill-detail">Primary languages for game programming</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Languages</div>
+      <div class="skill-name">Visual Basic / COBOL</div>
+      <div class="skill-detail">Additional programming experience</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Tools</div>
+      <div class="skill-name">Git / SVN</div>
+      <div class="skill-detail">Version control in professional environments</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">3D &amp; Design</div>
+      <div class="skill-name">Maya / 3DS Max</div>
+      <div class="skill-detail">3D modeling for game assets</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Mobile</div>
+      <div class="skill-name">Android Studio</div>
+      <div class="skill-detail">Mobile application development</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-cat">Methodology</div>
+      <div class="skill-name">Agile / Scrum</div>
+      <div class="skill-detail">Team lead experience with Agile workflows</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EDUCATION -->
+<section>
+  <div class="section-tag">Education</div>
+  <h2 class="section-title">Background</h2>
+  <div class="edu-grid">
+    <div class="edu-card">
+      <div class="edu-year">09/2017 – 06/2020 · London</div>
+      <div class="edu-school">University of Westminster</div>
+      <div class="edu-degree">BSc (Hons) Computer Games Development<br/>Game AI · Networked Games · Game Engine Architecture · 3D Graphics · Advanced Media Development</div>
+      <span class="edu-badge">First Class Honours</span>
+    </div>
+    <div class="edu-card">
+      <div class="edu-year">09/2012 – 06/2017 · Verona, Italy</div>
+      <div class="edu-school">I.I.S.S. "Copernico-Pasoli"</div>
+      <div class="edu-degree">Economy &amp; Computer Science<br/>CISCO Networking Academy · European Computer Driving Licence (ECDL)</div>
+      <span class="edu-badge">Esame di Stato: 100/100</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div>
+      <div class="section-tag">Let's work together</div>
+      <h2 class="contact-big">Get in<br/><span>touch.</span></h2>
+      <p class="contact-sub">Open to new opportunities in game programming. Relocation can be discussed. Based in Verona, Italy.</p>
+      <a href="mailto:dalcorsoalberto@gmail.com" class="btn btn-primary">dalcorsoalberto@gmail.com</a>
+    </div>
+    <div class="contact-links">
+      <a href="mailto:dalcorsoalberto@gmail.com" class="contact-link">
+        <div>
+          <span class="contact-link-label">Email</span>
+          dalcorsoalberto@gmail.com
+        </div>
+      </a>
+      <a href="https://linkedin.com/in/alberto-dal-corso" class="contact-link" target="_blank">
+        <div>
+          <span class="contact-link-label">LinkedIn</span>
+          alberto-dal-corso
+        </div>
+      </a>
+      <a href="tel:+393489110900" class="contact-link">
+        <div>
+          <span class="contact-link-label">Mobile</span>
+          +39 348 911 0900
+        </div>
+      </a>
+      <div class="contact-link" style="cursor:default">
+        <div>
+          <span class="contact-link-label">Location</span>
+          Grezzana, Verona — Italy
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Alberto Dal Corso</p>
+  <p>Computer Games Programmer · Verona, Italy</p>
+</footer>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕ Close</button>
+    <div class="modal-type" id="mType"></div>
+    <h2 class="modal-title" id="mTitle"></h2>
+    <div class="modal-meta" id="mMeta"></div>
+    <div id="mVideo"></div>
+    <div id="mImages"></div>
+    <div id="mConcept"></div>
+    <div id="mProduction"></div>
+    <div id="mContributions"></div>
+    <div id="mExtra"></div>
+    <div class="modal-section-title">Tech Stack</div>
+    <div class="modal-tags" id="mTags"></div>
+  </div>
+</div>
+
+<script>
+const projects = [
+  {
+    id:1, type:"Game Group Project I", title:"Octonaut",
+    year:"2020", role:"Lead Programmer", team:"University Group Project", duration:"3 months", engine:"MonoGame", language:"C#",
+    youtube:"https://youtu.be/yFxnfuM8DU4?si=0D4cpVO_B2NJjJ-3",
+    images:["media/octonaut/Screen1.jpg","media/octonaut/Screen2.jpg","media/octonaut/Screen3.jpg","media/octonaut/Screen4.jpg"],
+    concept:"Octonaut was the final year project of our course — a 2D scrolling shooter where the player uses skill to survive and complete levels. The player can dodge projectiles by moving in depth. Recently this game was released on Steam as <a href='https://store.steampowered.com/app/1035470/Takotan/' target='_blank' style='color:var(--accent)'>Takotan</a>, and is coming soon to Switch, PS Vita and Xbox.",
+    production:"Octonaut had 3 levels with a final boss at the end of level 3. As lead programmer I implemented the wave system, coded 7 different enemy types each with a unique behaviour, built the Boss, handled power-ups and collision detection, and supported teammates with their tasks.",
+    contributions:["AI programming — 7 unique enemy types + Boss","Enemy wave system","Power-ups","Collision detection","Enemy design","Lead programmer — supported full team"],
+    extra:"<div class='modal-section-title'>Released on Steam</div><p style='font-size:0.8rem;color:var(--muted);line-height:1.8'>🎮 <a href='https://store.steampowered.com/app/1035470/Takotan/' target='_blank' style='color:var(--accent)'>Takotan on Steam</a><br>Coming soon to Nintendo Switch · PS Vita · Xbox</p>",
+    tags:["MonoGame","C#","2D Shooter","AI Programming","Wave System","Steam Release"]
+  },
+  
+  {
+    id:3, type:"Game Group Project III", title:"Blood Rush",
+    year:"2020", role:"Lead Programmer", team:"University Group Project", duration:"2 months", engine:"Unreal Engine 4", language:"C++",
+    youtube:"https://youtu.be/MdW7ntQ5UyE",
+    images:["media/bloodrush/Screen1.jpg","media/bloodrush/Screen2.jpg","media/bloodrush/Screen3.jpg","media/bloodrush/Screen4.jpg","media/bloodrush/Screen5.jpg"],
+    concept:"Blood Rush is a VR game made in Unreal Engine where the player must kill waves of enemies to progress to the next zone. Your ammunition is your own blood — run out of bullets and you cannot shoot for a limited time. You also carry a dagger that drains blood from enemies and a shield to deflect projectiles.",
+    production:"The team set up a fully functioning VR project with polished mechanics including a blood-draining blade and a shield system. I was lead programmer and focused on AI — building 3 entirely different enemy types — and implemented health regeneration in C++ triggered when the player runs out of ammunition.",
+    contributions:["AI programming — 3 unique enemy types with distinct behaviours","Health regeneration system (C++)","Lead programmer","Debug & testing"],
+    extra:"",
+    tags:["Unreal Engine 4","C++","VR","AI Programming","Wave System","Health System"]
+  },
+  {
+    id:4, type:"Tranzfuser 2020 — Work In Progress 🏆", title:"Leap",
+    year:"2020–2021", role:"Lead Programmer", team:"Fat Pigeon Games", duration:"Jun 2020 – Feb 2021", engine:"Unreal Engine 4", language:"C++",
+    youtube:"https://youtu.be/ZxXbFYJKvXg",
+    images:["media/leap/Screen1.jpg","media/leap/Screen2.jpg","media/leap/Screen3.jpg","media/leap/Screen4.jpg","media/leap/Screen5.jpg"],
+    concept:"Leap started as part of the Jamfuser 2020 competition. Tranzfuser liked the game and decided to sponsor us for full development. Leap is an Adventure-Platformer made in Unreal Engine where the player passes levels by creating paths with a special weapon capable of placing platforms. A Leaderboard system guarantees replayability.",
+    production:"The team built polished level design alongside compelling mechanics. As lead programmer I was responsible for the health and checkpoint system, a C++ leaderboard implementation, snow and sandstorm environmental effects, overall oversight of teammates' tasks, and debug and roles management.",
+    contributions:["Health system & checkpoint system","Leaderboard system (C++)","Snow and sandstorm effects","Source control leader","Website designer","Lead programmer — overall task management","Debug & testing"],
+     extra: `
+  <div class='modal-section-title'>Awards</div>
+  <p style='font-size:0.8rem;color:var(--muted);line-height:1.8'>
+  🏆 Jamfuser 2020 — Winner<br>
+  💰 Tranzfuser — Selected for funded full development
+  </p>
+
+  <div class='modal-section-title'>GitHub</div>
+  <p style='font-size:0.8rem;color:var(--muted);line-height:1.8'>
+  🔗 <a href='https://github.com/Alby1998/LeapLeaderboard'
+  target='_blank'
+  style='color:var(--accent)'>
+  Leap Leaderboard Repository
+  </a>
+  </p>
+  `,
+    tags:["Unreal Engine 4","C++","Adventure-Platformer","Leaderboard","Checkpoint System","Tranzfuser","Source Control"]
+  },
+  {
+    id:5, type:"Global Game Jam 2020", title:"Antibot",
+    year:"2020", role:"Lead Programmer", team:"Apocalypse Under the Sea", duration:"3 Days", engine:"Unreal Engine 4", language:"C++",
+  youtube:"https://youtu.be/tCPDhYamHes",
+    images:["media/antibot/Screen1.jpg","media/antibot/Screen2.jpg","media/antibot/Screen3.jpg","media/antibot/Screen4.jpg"],
+    concept:"I was part of Team 'Apocalypse Under the Sea' during the Global Game Jam 2020, with the theme being 'Repair'. ANTIBOT is a puzzle-arcade game in which the player repairs infected cells before they corrupt the blood system. To succeed, the player sends a nanobot to the desired position using a horizontal and a vertical bar — a unique positional mechanic.",
+    production:"In Antibot we implemented a unique movement mechanic alongside a Score system and an HP system, both affected by how many viruses the player fixed and how many they missed. The player can also check a mini-map showing their position and the viruses' locations.",
+    contributions:["Score system & HP system","Menu system","Mini-map implementation","Lead programmer","Debug & testing"],
+    extra:"",
+    tags:["Global Game Jam","Unreal Engine 4","C++","Puzzle-Arcade","Mini-map","Co-op"]
+  },
+  {
+    id:6, type:"Ukie Green Game Jam 2019", title:"Forest Guardian",
+    year:"2019", role:"AI & UI Programmer", team:"Game Jam Team", duration:"", engine:"Unreal Engine 4", language:"C++",
+    youtube:"https://youtu.be/Q132hVQVTwg",
+    images:["media/forestguardian/Screen1.jpg","media/forestguardian/Screen2.jpg","media/forestguardian/Screen3.jpg","media/forestguardian/Screen4.jpg"],
+    concept:"I was part of the team who created 'Forest Guardian' during the Ukie Green Game Jam 2019, with the theme 'Climate Change / Sustainability'. Forest Guardian is a game where the player saves the forest by disposing of garbage using the spirit of the forest and its cub, while avoiding getting caught by hunters.",
+    production:"In Forest Guardian we implemented AI and a cub system to make the game more challenging. We also built a hide mechanic that allows the player to conceal themselves in the grass so hunters cannot spot them.",
+    contributions:["AI system — patrolling hunters with multiple states","Menu system","Debug & testing"],
+    extra:"",
+    tags:["Ukie Green Game Jam","Unreal Engine 4","C++","AI Programming","Stealth","Climate Change"]
+  },
+  {
+    id:7, type:"Westminster Game Jam 2019 — Most Appreciated ⭐", title:"Urilux",
+    year:"2019", role:"UI Programmer & Level Designer", team:"Neo Star", duration:"3 Days", engine:"Unreal Engine 4", language:"C++",
+      youtube:"https://youtu.be/L6xdhJq_ysA",
+    images:["media/urilux/Screen1.jpg","media/urilux/Screen2.jpg","media/urilux/Screen3.jpg"],
+    concept:"I was part of Team Neo Star creating 'Urilux' during the University of Westminster Game Jam 2019, with the theme 'Cooperation and Collusion'. Urilux is a split-screen game where two players must cooperate to progress through levels using their lasers to overcome obstacles and open doors. The game is playable using Xbox One controllers.",
+    production:"In Urilux we implemented split-screen mechanics allowing simultaneous co-op play via Xbox One Controllers. We added a laser system so players can collaborate — or collude — during each level. The unique mechanic uses the laser to activate triggers and lighting elements.",
+    contributions:["Menu system","Level design — door system","Debug & testing"],
+    extra:"<div class='modal-section-title'>Awards</div><p style='font-size:0.8rem;color:var(--muted);line-height:1.8'>⭐ Westminster Game Jam 2019 — Most Appreciated</p>",
+    tags:["Westminster Game Jam","Unreal Engine 4","C++","Split-screen","Co-op","Xbox Controller","Laser Mechanic"]
+  },
+  {
+    id:8, type:"Ukie Game Jam 2018", title:"Top Down",
+    year:"2018", role:"UI Programmer & Level Designer", team:"OutOfMana", duration:"", engine:"Unity", language:"C#",
+    youtube:"https://youtu.be/vgXoownHg7A",
+    images:["media/topdown/Screen1.jpg","media/topdown/Screen2.jpg","media/topdown/Screen3.jpg"],
+    concept:"TopDown is a 2D game made in Unity during the Ukie Game Jam 2018 with the topic of CHANGE. The player controls a cube by changing gravity to overcome obstacles. Since the game is intentionally difficult, dying is frequent — the block violently explodes when it hits a wall.",
+    production:"In Top Down we used post-processing effects to add glowing to dangerous walls. Motion blur and screen shake combined give a striking visual effect that fits the game's aesthetic perfectly. Background and gravity particles further complement the visual style.",
+    contributions:["UI programming","Level design","Debug & testing"],
+    extra:"",
+    tags:["Ukie Game Jam","Unity","C#","Gravity Mechanic","Post-processing","2D"]
+  }
+];
+
+function openModal(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('mType').textContent = p.type;
+  document.getElementById('mTitle').textContent = p.title;
+
+  let metaHTML = `
+    <div class="modal-meta-item">Year <span>${p.year}</span></div>
+    <div class="modal-meta-item">Team <span>${p.team}</span></div>
+    <div class="modal-meta-item">Engine <span>${p.engine}</span></div>
+    <div class="modal-meta-item">Language <span>${p.language}</span></div>
+  `;
+  if (p.duration) metaHTML += `<div class="modal-meta-item">Duration <span>${p.duration}</span></div>`;
+  document.getElementById('mMeta').innerHTML = metaHTML;
+
+  // Video
+  const videoEl = document.getElementById('mVideo');
+  if (p.youtube) {
+    const videoId = p.youtube.includes('watch?v=')
+      ? p.youtube.split('watch?v=')[1].split('&')[0]
+      : p.youtube.split('/').pop();
+    videoEl.innerHTML = `
+      <div class="modal-section-title">Gameplay Video</div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:1.5rem;border:1px solid var(--border)">
+        <iframe src="https://www.youtube.com/embed/${videoId}" title="Gameplay" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
+      </div>`;
+  } else {
+    videoEl.innerHTML = `
+      <div class="modal-section-title">Gameplay Video</div>
+      <div style="border:1px dashed var(--border);padding:2rem;text-align:center;margin-bottom:1.5rem;font-size:0.75rem;color:var(--muted)">
+        Video coming soon — paste YouTube URL in <code style="color:var(--accent)">youtube</code> field
+      </div>`;
+  }
+
+  // Images gallery
+  const imagesEl = document.getElementById('mImages');
+  if (p.images && p.images.length) {
+    imagesEl.innerHTML = `
+      <div class="modal-section-title">screen</div>
+      <div class="img-gallery">
+        ${p.images.map((src,i) => `<img src="${src}" alt="screen ${i+1}" onclick="openLightbox(${p.id},${i})" loading="lazy"/>`).join('')}
+      </div>`;
+  } else {
+    imagesEl.innerHTML = '';
+  }
+
+  document.getElementById('mConcept').innerHTML = p.concept
+    ? `<div class="modal-section-title">Game Concept</div><p style="font-size:0.82rem;color:var(--muted);line-height:1.9;margin-bottom:1rem">${p.concept}</p>`
+    : '';
+
+  document.getElementById('mProduction').innerHTML = p.production
+    ? `<div class="modal-section-title">Game Production</div><p style="font-size:0.82rem;color:var(--muted);line-height:1.9;margin-bottom:1rem">${p.production}</p>`
+    : '';
+
+  document.getElementById('mContributions').innerHTML = p.contributions && p.contributions.length
+    ? `<div class="modal-section-title">My Contributions</div><ul style="list-style:none;margin-bottom:1rem">${p.contributions.map(c=>`<li style="font-size:0.78rem;color:var(--muted);padding:0.3rem 0 0.3rem 1.2em;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>${c}</li>`).join('')}</ul>`
+    : '';
+
+  document.getElementById('mExtra').innerHTML = p.extra;
+  document.getElementById('mTags').innerHTML = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Clear iframe to stop video playing in background
+  document.getElementById('mVideo').innerHTML = '';
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕ Close</button>
+  <button class="lightbox-nav lightbox-prev" onclick="shiftLightbox(-1)">‹</button>
+  <img id="lightboxImg" src="" alt="Screen"/>
+  <button class="lightbox-nav lightbox-next" onclick="shiftLightbox(1)">›</button>
+</div>
+
+<script>
+let lbImages = [], lbIndex = 0;
+
+function openLightbox(projectId, index) {
+  const p = projects.find(x => x.id === projectId);
+  if (!p || !p.images.length) return;
+  lbImages = p.images;
+  lbIndex = index;
+  document.getElementById('lightboxImg').src = lbImages[lbIndex];
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+
+function shiftLightbox(dir) {
+  lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+  document.getElementById('lightboxImg').src = lbImages[lbIndex];
+}
+
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') shiftLightbox(-1);
+  if (e.key === 'ArrowRight') shiftLightbox(1);
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+
+</body>
+</html>
